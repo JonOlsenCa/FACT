@@ -33,6 +33,28 @@ This server provides a simple introduction to FastMCP development with:
    - Lists available tools and their parameters
    - Shows server status and capabilities
 
+## Project Structure
+
+```
+fact-memory/src/
+├── server/                      # FastMCP server implementation
+│   ├── __init__.py             # Package initialization
+│   └── hello_mcp_server.py     # Main FastMCP server implementation
+├── tests/                       # Test suites and validation
+│   ├── __init__.py             # Package initialization
+│   ├── test_client.py          # Test client for validation
+│   └── test_mcp_integration.py # MCP protocol testing
+├── docs/                        # Documentation
+│   ├── IMPLEMENTATION_SUMMARY.md  # Technical implementation details
+│   ├── INTEGRATION_PATTERNS.md    # Integration patterns and best practices
+│   └── VALIDATION_REPORT.md       # Test results and validation report
+├── config/                      # Configuration files
+│   ├── requirements.txt        # Python dependencies
+│   ├── package.json           # Node.js dependencies (optional)
+│   └── tsconfig.json          # TypeScript configuration (optional)
+└── README.md                   # This documentation
+```
+
 ## Installation
 
 1. Install FastMCP:
@@ -42,37 +64,39 @@ pip install fastmcp
 
 2. Or install from requirements:
 ```bash
-pip install -r requirements.txt
+pip install -r config/requirements.txt
 ```
 
 ## Usage
 
-### Test Mode (Development)
+### Quick Start (Recommended)
 
-Test all tools and resources:
+Use the convenient entry point script:
+
 ```bash
-python hello_mcp_server.py --mode test
+# Test mode (development)
+python run_server.py --mode test
+
+# STDIO mode (standard MCP)
+python run_server.py --mode stdio
+
+# HTTP mode (development/testing)
+python run_server.py --mode http --host localhost --port 8080
 ```
 
-Enable debug logging:
+### Direct Server Execution
+
+Alternatively, run the server directly:
+
 ```bash
-python hello_mcp_server.py --mode test --debug
-```
+# Test mode
+python server/hello_mcp_server.py --mode test --debug
 
-### STDIO Mode (Standard MCP)
+# STDIO mode
+python server/hello_mcp_server.py --mode stdio
 
-Run as a standard MCP server for client integration:
-```bash
-python hello_mcp_server.py --mode stdio
-```
-
-This is the default mode and standard way to run MCP servers.
-
-### HTTP Mode (Development/Testing)
-
-Run with HTTP transport for web-based testing:
-```bash
-python hello_mcp_server.py --mode http --host localhost --port 8080
+# HTTP mode
+python server/hello_mcp_server.py --mode http --host localhost --port 8080
 ```
 
 Access at: `http://localhost:8080`
@@ -200,7 +224,13 @@ The server includes comprehensive testing capabilities:
 
 Run tests:
 ```bash
-python hello_mcp_server.py --mode test --debug
+python server/hello_mcp_server.py --mode test --debug
+```
+
+Or run the dedicated test suite:
+```bash
+python tests/test_client.py
+python tests/test_mcp_integration.py
 ```
 
 ## Integration
@@ -214,7 +244,7 @@ from mcp import ClientSession
 
 # Connect to server
 session = ClientSession()
-await session.connect("stdio", {"command": ["python", "hello_mcp_server.py"]})
+await session.connect("stdio", {"command": ["python", "server/hello_mcp_server.py"]})
 
 # Call tools
 hello_result = await session.call_tool("hello", {})
