@@ -56,18 +56,24 @@ class Config:
     def _validate_required_keys(self) -> None:
         """
         Validate that all required configuration keys are present and valid.
-        
+
         Raises:
             ConfigurationError: If any required keys are missing or invalid
         """
+        # Only ANTHROPIC_API_KEY is truly required
         required_keys = [
-            "ANTHROPIC_API_KEY",
+            "ANTHROPIC_API_KEY"
+        ]
+
+        # Optional keys that should be validated if present
+        optional_keys = [
             "ARCADE_API_KEY"
         ]
-        
+
         missing_keys = []
         invalid_keys = []
-        
+
+        # Check required keys
         for key in required_keys:
             value = os.getenv(key)
             if not value:
@@ -76,17 +82,23 @@ class Config:
                 missing_keys.append(key)  # Treat whitespace-only as missing
             elif self._is_placeholder_key(value.strip()):
                 invalid_keys.append(key)
-                
+
+        # Check optional keys only if they are set
+        for key in optional_keys:
+            value = os.getenv(key)
+            if value and value.strip() and self._is_placeholder_key(value.strip()):
+                invalid_keys.append(key)
+
         if missing_keys:
             raise ConfigurationError(
                 f"Missing required configuration keys: {', '.join(missing_keys)}"
             )
-            
+
         if invalid_keys:
             raise ConfigurationError(
                 f"Invalid placeholder values for keys: {', '.join(invalid_keys)}. Please set real API keys."
             )
-            
+
         logger.info("Configuration validation passed")
     
     def _is_placeholder_key(self, value: str) -> bool:
